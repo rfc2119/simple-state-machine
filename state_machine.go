@@ -126,10 +126,23 @@ func (sm *StateMachine) IsInState(s State) bool {
 // GoToState sets the current state to a new one and optionally trigger the onEnter function
 func (sm *StateMachine) GoToState(s State, triggerOnEnter bool) error {
 	cfg, ok := sm.stateToConfig[s]
-	if !ok { return errors.New("state does not exist") }
+	if !ok {
+		return errors.New("state does not exist")
+	}
 	sm.current = cfg
-    if triggerOnEnter && sm.current.onEnter != nil { sm.current.onEnter() }
+	if triggerOnEnter && sm.current.onEnter != nil {
+		sm.current.onEnter()
+	}
 	return nil
+}
+
+// GetNextStates lists the next available states starting from current state.
+func (sm *StateMachine) GetNextStates() []State {
+	nextStates := []State{}
+	for _, edge := range sm.current.permitted {
+		nextStates = append(nextStates, edge.state)
+	}
+	return nextStates
 }
 
 // registerStateConfig registers the state with a blank configuration.

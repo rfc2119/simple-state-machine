@@ -17,7 +17,7 @@ func TestGoToStateNoOnEnter(t *testing.T) {
 	s1 := ssm.State{Name: "foo"}
 	s2 := ssm.State{Name: "bar"}
 	sm := ssm.NewStateMachine(s1)
-    _   = sm.Configure(s2)        // registers state s2 with empty config
+	_ = sm.Configure(s2) // registers state s2 with empty config
 
 	sm.GoToState(s2, false)
 	require.Equal(t, s2, sm.State())
@@ -26,15 +26,15 @@ func TestGoToStateNoOnEnter(t *testing.T) {
 func TestGoToStateOnEnter(t *testing.T) {
 	s1 := ssm.State{Name: "foo"}
 	s2 := ssm.State{Name: "bar"}
-    s2EnterCalled := false
+	s2EnterCalled := false
 
 	sm := ssm.NewStateMachine(s1)
-    cfg := sm.Configure(s2)        // registers state s2 with empty config
+	cfg := sm.Configure(s2)
 	cfg.OnEnter(func() { s2EnterCalled = true })
 
 	sm.GoToState(s2, true)
 	require.Equal(t, s2, sm.State())
-    require.True(t, s2EnterCalled)
+	require.True(t, s2EnterCalled)
 }
 
 func TestOnEnterOnExit(t *testing.T) {
@@ -333,4 +333,25 @@ func TestCanFire(t *testing.T) {
 
 	canTransition = true
 	require.True(t, sm.CanFire(tr3.Key))
+}
+
+func TestGetNextStates(t *testing.T) {
+
+	s1 := ssm.State{Name: "s1"}
+	s2 := ssm.State{Name: "s2"}
+	s3 := ssm.State{Name: "s3"}
+	s4 := ssm.State{Name: "s4"}
+	tr1 := ssm.Trigger{Key: "tr1"}
+	tr2 := ssm.Trigger{Key: "tr2"}
+
+	sm := ssm.NewStateMachine(s1)
+	cfg := sm.Configure(s1)
+	cfg.Permit(tr1, s2)
+	cfg.Permit(tr2, s3)
+	require.Equal(t, []ssm.State{s2, s3}, sm.GetNextStates())
+
+	_ = sm.Configure(s4)
+	sm.GoToState(s4, false)
+
+	require.Equal(t, []ssm.State{}, sm.GetNextStates())
 }
