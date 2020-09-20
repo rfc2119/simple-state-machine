@@ -123,6 +123,16 @@ func (sm *StateMachine) IsInState(s State) bool {
 	return false
 }
 
+// GoToState sets the current state to a new one without triggering any event.
+func (sm *StateMachine) GoToState(s State) error {
+	cfg, ok := sm.stateToConfig[s]
+	if !ok {
+		return errors.New("state does not exist")
+	}
+	sm.current = cfg
+	return nil
+}
+
 // registerStateConfig registers the state with a blank configuration.
 func (sm *StateMachine) registerStateConfig(s State) *StateConfig {
 	cfg, ok := sm.stateToConfig[s]

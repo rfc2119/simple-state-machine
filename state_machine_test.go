@@ -3,7 +3,7 @@ package ssm_test
 import (
 	"testing"
 
-	"github.com/markdaws/simple-state-machine"
+	"github.com/rfc2119/simple-state-machine"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,6 +11,16 @@ func TestSettingInitialState(t *testing.T) {
 	s := ssm.State{Name: "foo"}
 	sm := ssm.NewStateMachine(s)
 	require.Equal(t, s, sm.State())
+}
+
+func TestGoToState(t *testing.T) {
+	s1 := ssm.State{Name: "foo"}
+	s2 := ssm.State{Name: "bar"}
+	sm := ssm.NewStateMachine(s1)
+    _   = sm.Configure(s2)        // registers state s2 with empty config
+
+	sm.GoToState(s2)
+	require.Equal(t, s2, sm.State())
 }
 
 func TestOnEnterOnExit(t *testing.T) {
