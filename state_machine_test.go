@@ -13,14 +13,28 @@ func TestSettingInitialState(t *testing.T) {
 	require.Equal(t, s, sm.State())
 }
 
-func TestGoToState(t *testing.T) {
+func TestGoToStateNoOnEnter(t *testing.T) {
 	s1 := ssm.State{Name: "foo"}
 	s2 := ssm.State{Name: "bar"}
 	sm := ssm.NewStateMachine(s1)
     _   = sm.Configure(s2)        // registers state s2 with empty config
 
-	sm.GoToState(s2)
+	sm.GoToState(s2, false)
 	require.Equal(t, s2, sm.State())
+}
+
+func TestGoToStateOnEnter(t *testing.T) {
+	s1 := ssm.State{Name: "foo"}
+	s2 := ssm.State{Name: "bar"}
+    s2EnterCalled := false
+
+	sm := ssm.NewStateMachine(s1)
+    cfg := sm.Configure(s2)        // registers state s2 with empty config
+	cfg.OnEnter(func() { s2EnterCalled = true })
+
+	sm.GoToState(s2, true)
+	require.Equal(t, s2, sm.State())
+    require.True(t, s2EnterCalled)
 }
 
 func TestOnEnterOnExit(t *testing.T) {

@@ -123,13 +123,12 @@ func (sm *StateMachine) IsInState(s State) bool {
 	return false
 }
 
-// GoToState sets the current state to a new one without triggering any event.
-func (sm *StateMachine) GoToState(s State) error {
+// GoToState sets the current state to a new one and optionally trigger the onEnter function
+func (sm *StateMachine) GoToState(s State, triggerOnEnter bool) error {
 	cfg, ok := sm.stateToConfig[s]
-	if !ok {
-		return errors.New("state does not exist")
-	}
+	if !ok { return errors.New("state does not exist") }
 	sm.current = cfg
+    if triggerOnEnter && sm.current.onEnter != nil { sm.current.onEnter() }
 	return nil
 }
 
