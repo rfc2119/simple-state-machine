@@ -145,6 +145,14 @@ func (sm *StateMachine) GetNextStates() []State {
 	return nextStates
 }
 
+// GetNextTriggers lists the next available triggers starting from current state.
+func (sm *StateMachine) GetNextTriggers() []Trigger {
+	nextTriggers := []Trigger{}
+	for _, edge := range sm.current.permitted {
+		nextTriggers = append(nextTriggers, edge.trigger)
+	}
+	return nextTriggers
+}
 // registerStateConfig registers the state with a blank configuration.
 func (sm *StateMachine) registerStateConfig(s State) *StateConfig {
 	cfg, ok := sm.stateToConfig[s]
